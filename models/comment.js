@@ -33,12 +33,12 @@ Comment.init (
                 len: [1]
             }
         },
-        {
-            sequelize,
-            freezeTableName: true,
-            underscored: true,
-            modelName: 'comment'
-        }
+    },
+    {
+        sequelize,
+        freezeTableName: true,
+        underscored: true,
+        modelName: 'comment'
     }
 );
  
