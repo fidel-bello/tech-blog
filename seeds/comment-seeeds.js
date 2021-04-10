@@ -1,4 +1,3 @@
-const { Model } = require('sequelize/types');
 const {Comment} = require('../models');
 
 const commentInfo = [

@@ -28,7 +28,7 @@ Comment.init (
         },
         text: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
             validate: {
                 len: [1]
             }

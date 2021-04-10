@@ -2,6 +2,7 @@ const User = require('./user');
 const Comment = require('./comment');
 const Post = require('./post')
 
+
 //Table Relationships
 
 Comment.belongsTo(Post, {

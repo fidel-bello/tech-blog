@@ -19,10 +19,8 @@ User.init (
           autoIncrement: true
       },
       username: {
-          type: DataTypes.INTEGER,
+          type: DataTypes.STRING,
           allowNull: false,
-          primaryKey: true,
-          autoIncrement: true
       },
         github: {
             type: DataTypes.STRING,
