@@ -58,4 +58,29 @@ router.post('/', (req,res) => {
             res.json(dbUserInfo);
         })
     })
+});
+
+router.post('/lgoin', (req, res) => {
+    User.findOne({
+        where: { 
+            email: req.body.email
+        }
+    }).then(dbUserInfo => {
+        if (!dbUserInfo) {
+            res.status(400).json({ message: 'no user with that email was found'});
+            return;
+        }
+        const validPassword = dbUserInfo.checkPassword(req.body.password);
+        if(!validPassword) {
+            res.status(400).json({ message: 'Password is incorrect'});
+            return
+        }
+        req.session.save(()=>{
+        req.session.user_id = dbUserInfo.id;
+        req.session.username= dbUserInfo.username;
+        req.session.github  = dbUserInfo.github;
+        req.session.loggedIn = true;
+        res.json({ user: dbUserInfo, message: 'log in succesfull!'})
+    })
 })
+});
