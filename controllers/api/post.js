@@ -68,3 +68,39 @@ router.get(':id', (req, res) => {
     })
 });
 
+router.post('/', withAuth, (req, res) => {
+    Post.create({
+        title: req.params.title,
+        psot_content: req.body.post_content,
+        user_id: req.session.user_id
+    }).then(dbPostinfo => res.json(dbPostinfo))
+    .catch(err => {
+        console.log(err);
+        res.status(500).json(err)
+    })
+});
+
+router.put(':id', withAuth, (req, res) => {
+    Post.update({
+        title: req.body.title,
+        post_content: req.body.post_content
+    },
+    {
+        where: {
+            id: req.params.id
+        }
+    }
+    ).then(dbPostinfo => {
+        if(!dbPostinfo) {
+            res.status(404).json({ message: "no post found here"})
+            return
+        }
+        res.json(dbPostinfo);
+    }).catch(err => {
+        console.log(err);
+        res.status(500).json(err);
+    })
+});
+
+module.exports = router;
+
