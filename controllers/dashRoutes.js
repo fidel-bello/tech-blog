@@ -1,14 +1,17 @@
 const router = require('express').Router();
 const sequelize = require('../config/connection');
-const { Post, User, Comment } = require('../models');
+const { Post, User, Comment} = require('../models');
+const withAuth = require('../utils/auth');
 
-router.get('/', (req,res) => {
-    console.log(req.session);
+router.get('/', withAuth, (req, res) => {
     Post.findAll({
+        where: {
+            user_id: req.session.user_id
+        },
         attributes: [
             'id',
             'title',
-            'created _at',
+            'created_at',
             'post_content'
         ],
         include: [
@@ -23,38 +26,18 @@ router.get('/', (req,res) => {
             {
                 model: User,
                 attributes: ['username', 'github']
-            }   
+            }
         ]
     }).then(dbPostinfo => {
         const posts = dbPostinfo.map(post => post.get({ plain: true}));
-        res.render('homepage', {
-            posts,
-            loggedIn: req.session.loggedIn
-        });
-    })
-    .catch(err => {
+        res.render('dashboard', { posts, loggedIn: true});
+    }).catch(err => {
         console.log(err);
         res.status(500).json(err)
     })
 });
 
-router.get('/login', (req, res) => {
-    if(req.session.loggedIn) {
-        res.redirect('/');
-        return
-    }
-    res.render('login');
-});
-
-router.get('/signup', (req, res) => {
-    if(req.session.loggedIn) {
-        res.redirect('/');
-        return;
-    }
-    res.render('signup')
-});
-
-router.get('/post/:id', (req, res) => {
+router.get('/edit/:id', withAuth, (req, res) => {
     Post.findOne({
         where: {
             id: req.params.id
@@ -68,34 +51,25 @@ router.get('/post/:id', (req, res) => {
         include: [
             {
                 model: Comment,
-                attributes: ['id', 'text', 'post_id', 'created_at'],
+                attributes: ['id', 'text', 'post_id', 'user_id', 'created_at'],
                 include: {
                     model: User,
                     attributes: ['username', 'github']
                 }
-            },
-            {
-                model: User,
-                attributes: ['username', 'github']
             }
         ]
     }).then(dbPostinfo => {
         if(!dbPostinfo) {
-            res.status(404).json({ message: 'No post found'});
+            res.status(404).json({ message: 'No post found with this id'})
             return;
         }
         const post = dbPostinfo.get({ plain: true});
-        res.render('single-post', {
+        res.render('edit-post', {
             post,
-            loggedIn: req.session.loggedIn
+            loggedIn: true
         });
     }).catch(err => {
         console.log(err);
         res.status(500).json(err)
     })
-})
-
-module.exports = router;
-
-
-
+});
