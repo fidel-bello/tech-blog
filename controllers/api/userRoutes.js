@@ -13,10 +13,8 @@ router.get('/', (req, res)=> {
 
 router.get('/:id', (req, res) => {
     User.findOne({
-        attributes: {exclude: ['password']},
-        where: {
-            id: req.params.id
-        },
+        attributes: { exclude: ['password']},
+        where: {id: req.params.id},
         include: [
             {
                 model: Post,
@@ -24,24 +22,23 @@ router.get('/:id', (req, res) => {
             },
             {
                 model: Comment,
-                attributes: ['id', 'text', 'created at'],
-                include: {
-                    model: Post,
-                    attributes: ['title']
-                }
+                attributes: ['id', 'text', 'created_at'],
+                include: {model: Post,
+                attributes: ['title']
+            }
             }
         ]
+    }).then(dbUserInfo => {
+        if(!dbUserInfo) {
+            res.status(404).json({ message: 'no user found'})
+            return;
+        }
+        res.json(dbUserInfo);
+    }).catch(err => {
+        console.log(err);
+        res.status(500).json(err);
     })
-}).then(dbUserInfo => {
-    if(!dbUserInfo) {
-        res.status(404).json({ message: 'User not found!'});
-        return;
-    }
-    res.json(dbUserInfo)
-}).catch(err => {
-    console.log(err);
-    res.status(500).json(err);
-});
+})
 
 router.post('/', (req,res) => {
     User.create({
@@ -60,7 +57,7 @@ router.post('/', (req,res) => {
     })
 });
 
-router.post('/lgoin', (req, res) => {
+router.post('/login', (req, res) => {
     User.findOne({
         where: { 
             email: req.body.email
@@ -84,3 +81,5 @@ router.post('/lgoin', (req, res) => {
     })
 })
 });
+
+module.exports = router;
